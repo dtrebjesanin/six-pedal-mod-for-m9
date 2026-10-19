@@ -29,7 +29,7 @@ Every time you switch the pedal on, it shows `UNOFFICIAL FIRMWARE` / `SIX-PEDAL 
 
 The easiest way is the page `index.html` from this repository. It runs in Chrome or Edge on a desktop PC, needs no install and does the same job as the two Python scripts: it checks your 2.04 file, makes the mod in the browser and sends it to the pedal with the same pauses as `flash.py`, and at the end it reads the version. It can also flash the official 2.04 back. Your file stays on your PC (the page is built so that it can't connect to anything on the internet, so it can't upload your file either).
 
-Download this repository and open `index.html` from the folder. You need the same things as for the scripts (see [what you need](#what-you-need)), except Python and uv.
+Open it at [dtrebjesanin.github.io/six-pedal-mod-for-m9](https://dtrebjesanin.github.io/six-pedal-mod-for-m9/), or download this repository and open `index.html` from the folder. You need the same things as for the scripts (see [what you need](#what-you-need)), except Python and uv.
 
 The page takes you through six steps:
 
