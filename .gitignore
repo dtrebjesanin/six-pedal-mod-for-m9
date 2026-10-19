@@ -1,0 +1,6 @@
+# Firmware files and backups never belong in this repository.
+*.m9f
+*.syx
+*.bin
+*.zip
+__pycache__/
