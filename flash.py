@@ -15,7 +15,7 @@ import time
 import zlib
 
 NOTICE = "\n".join([
-    "Six-pedal mod for the Line 6 M9 (unofficial), release 1.0.",
+    "Six-pedal mod for the Line 6 M9 (unofficial), release 1.1.",
     "This is an unofficial community project. It is not supported, endorsed or maintained by Line 6.",
     "Use it at your own risk. A flash erases all saved scenes and the global settings of the pedal.",
     "To go back, flash the official 2.04 file from the Line 6 site.",
@@ -197,7 +197,7 @@ def _identity(midi_in, midi_out):
                 version = parse_identity(got[0])
             except FlashError:
                 continue
-            _say("Version: %s  (0204 = official, 02M1 = six-pedal mod 1.0)" % version)
+            _say("Version: %s  (0204 = official, 02M2 = six-pedal mod 1.1, 02M1 = six-pedal mod 1.0)" % version)
             return 0
         time.sleep(0.005)
     _say("No answer from the pedal within 3 seconds.", file=sys.stderr)
@@ -212,7 +212,7 @@ def main(argv=None):
     ap.add_argument("--port", help="MIDI port: a part of its name, as --list shows it")
     ap.add_argument("--list", action="store_true", help="list the MIDI ports and stop")
     ap.add_argument("--identity", action="store_true",
-                    help="ask the pedal for its version (0204 = official, 02M1 = mod) and stop")
+                    help="ask the pedal for its version (0204 = official, 02M2 = mod 1.1, 02M1 = mod 1.0) and stop")
     ap.add_argument("--yes", action="store_true", help="really send the file")
     ap.add_argument("--verbose", action="store_true", help="show every reply of the pedal")
     ap.add_argument("--ms", type=float, default=60.0, help="gap between messages in ms (60)")

@@ -56,11 +56,11 @@ footer p { margin: 6px 0; }
 <body>
 <main>
 <h1>Six-pedal mod for the Line 6 M9 (unofficial)</h1>
-<p class="release">Release 1.0</p>
+<p class="release">Release 1.1</p>
 
 <div id="notice" class="block">
 <h2>Notice</h2>
-<p>Six-pedal mod for the Line 6 M9 (unofficial), release 1.0.</p>
+<p>Six-pedal mod for the Line 6 M9 (unofficial), release 1.1.</p>
 <p>This is an unofficial community project. It is not supported, endorsed or maintained by Line 6.</p>
 <p>"Line 6" and "M9" are trademarks of their owners and name only the pedal and the official firmware that the mod works with.</p>
 </div>
@@ -79,7 +79,7 @@ footer p { margin: 6px 0; }
 <h2>1. What do you want to do?</h2>
 <p id="env-status" class="error" aria-live="polite" hidden></p>
 <div class="row">
-<button type="button" id="path-install" aria-pressed="false">Install the six-pedal mod 1.0</button>
+<button type="button" id="path-install" aria-pressed="false">Install the six-pedal mod 1.1</button>
 <button type="button" id="path-back" aria-pressed="false">Back to the official 2.04</button>
 </div>
 <p class="hint">Install: makes the six-pedal mod from your official 2.04 file and flashes it. Back: flashes the official 2.04 file as it is. Both erase all saved scenes and the global settings.</p>
@@ -139,7 +139,7 @@ footer p { margin: 6px 0; }
 
 <section id="step-6" class="step">
 <h2>6. Check the result</h2>
-<p>After the install path the version is 02M1 (the start-up message reads SIX-PEDAL MOD 1.0). After the way back it is 0204.</p>
+<p>After the install path the version is 02M2 (the start-up message reads SIX-PEDAL MOD 1.1). After the way back it is 0204.</p>
 <p id="result-status" class="status" aria-live="polite"></p>
 <div class="row">
 <button type="button" id="read-version" disabled>Read version</button>
@@ -171,7 +171,7 @@ footer p { margin: 6px 0; }
   "use strict";
 
   const NOTICE = [
-    "Six-pedal mod for the Line 6 M9 (unofficial), release 1.0.",
+    "Six-pedal mod for the Line 6 M9 (unofficial), release 1.1.",
     "This is an unofficial community project. It is not supported, endorsed or maintained by Line 6.",
     "Use it at your own risk. A flash erases all saved scenes and the global settings of the pedal.",
     "To go back, flash the official 2.04 file from the Line 6 site.",
@@ -180,7 +180,9 @@ footer p { margin: 6px 0; }
 
   // The only images this page may read and write (SysEx stream sha256).
   const INPUT_STREAM_SHA256 = "88236679c4da9fb6d79c78e36bfadf8b3c7003216fb740dcae98a89d8be690f9";
-  const OUTPUT_STREAM_SHA256 = "52611003291b047d53d333c67e9f566cf355ed072b118b4d1b18bfef02a81ac9";
+  const OUTPUT_STREAM_SHA256 = "1c87d5e52416401397ac66ea2e308d03c660345a1615756c4cd9756e657e0265";
+  // The stream of the six-pedal mod 1.0 file. Only used to refuse it with a clear message.
+  const MOD10_STREAM_SHA256 = "52611003291b047d53d333c67e9f566cf355ed072b118b4d1b18bfef02a81ac9";
 
   // ---------------------------------------------------------------- constants
 
@@ -504,7 +506,7 @@ footer p { margin: 6px 0; }
       throw badPatch("input or output is missing");
     }
     if (inp.stream_sha256 !== INPUT_STREAM_SHA256 || out.stream_sha256 !== OUTPUT_STREAM_SHA256) {
-      throw badPatch("it is not the patch data of release 1.0");
+      throw badPatch("it is not the patch data of release 1.1");
     }
     checkSections("input", inp.sections);
     checkSections("output", out.sections);
@@ -572,6 +574,9 @@ footer p { margin: 6px 0; }
         result = stream;
         note = "Official 2.04 file checked.";
       }
+    } else if (hash === MOD10_STREAM_SHA256) {
+      throw new FileError("This file is the six-pedal mod 1.0. Use the official 2.04 file " +
+                          OFFICIAL_NAME + " from the Line 6 site, unchanged.");
     } else if (hash === OUTPUT_STREAM_SHA256) {
       if (path !== "install") {
         throw new FileError("This is the six-pedal mod. For the way back, use the official file " +
@@ -579,7 +584,7 @@ footer p { margin: 6px 0; }
       }
       input = "mod";
       result = stream;
-      note = "This file is already the six-pedal mod 1.0. It is flashed as it is.";
+      note = "This file is already the six-pedal mod 1.1. It is flashed as it is.";
     } else {
       throw notOfficial();
     }
@@ -670,6 +675,7 @@ footer p { margin: 6px 0; }
     if (id.flashMode) return { ready: true, text: "The pedal is in FLASH UPDATE MODE." };
     const put = " Put it into FLASH UPDATE MODE, then check again.";
     if (id.version === "0204") return { ready: false, text: "The pedal runs the official 2.04." + put };
+    if (id.version === "02M2") return { ready: false, text: "The pedal runs the six-pedal mod 1.1." + put };
     if (id.version === "02M1") return { ready: false, text: "The pedal runs the six-pedal mod 1.0." + put };
     return {
       ready: false,
@@ -691,8 +697,8 @@ footer p { margin: 6px 0; }
     if (id.flashMode) {
       return { good: false, text: "The pedal is still in FLASH UPDATE MODE. Wait for the restart, then click Read version again." };
     }
-    if (!id.flashMode && path === "install" && id.version === "02M1") {
-      return { good: true, text: "Version 02M1: the six-pedal mod 1.0 runs." };
+    if (!id.flashMode && path === "install" && id.version === "02M2") {
+      return { good: true, text: "Version 02M2: the six-pedal mod 1.1 runs." };
     }
     if (!id.flashMode && path === "back" && id.version === "0204") {
       return { good: true, text: "Version 0204: the official 2.04 runs." };
@@ -880,7 +886,7 @@ footer p { margin: 6px 0; }
   // ------------------------------------------------------------ steps 1 and 2: path and file
   function choosePath(path) {
     state.path = path;
-    log("Path: " + (path === "install" ? "install the six-pedal mod 1.0" : "back to the official 2.04"));
+    log("Path: " + (path === "install" ? "install the six-pedal mod 1.1" : "back to the official 2.04"));
     if (state.bytes) checkFile(); else refresh();
   }
 
@@ -1356,9 +1362,9 @@ footer p { margin: 6px 0; }
 {
  "format": 1,
  "name": "Six-pedal mod for the Line 6 M9 (unofficial)",
- "version": "1.0",
- "identity": "02M1",
- "notice": "Six-pedal mod for the Line 6 M9 (unofficial), release 1.0.\nThis is an unofficial community project. It is not supported, endorsed or maintained by Line 6.\nUse it at your own risk. A flash erases all saved scenes and the global settings of the pedal.\nTo go back, flash the official 2.04 file from the Line 6 site.",
+ "version": "1.1",
+ "identity": "02M2",
+ "notice": "Six-pedal mod for the Line 6 M9 (unofficial), release 1.1.\nThis is an unofficial community project. It is not supported, endorsed or maintained by Line 6.\nUse it at your own risk. A flash erases all saved scenes and the global settings of the pedal.\nTo go back, flash the official 2.04 file from the Line 6 site.",
  "input": {
   "stream_sha256": "88236679c4da9fb6d79c78e36bfadf8b3c7003216fb740dcae98a89d8be690f9",
   "sections": [
@@ -1377,19 +1383,19 @@ footer p { margin: 6px 0; }
   ]
  },
  "output": {
-  "stream_sha256": "52611003291b047d53d333c67e9f566cf355ed072b118b4d1b18bfef02a81ac9",
+  "stream_sha256": "1c87d5e52416401397ac66ea2e308d03c660345a1615756c4cd9756e657e0265",
   "sections": [
    {
     "length": 131072,
     "sha256": "2388e885f1bd701374075df4af5b447de573f4a697e55d3ee43f062a08061411"
    },
    {
-    "length": 212256,
-    "sha256": "b196afb3000fb484f17747de4e777724778297fd5446b09f5f6c34e775eb67a0"
+    "length": 212724,
+    "sha256": "16db551a80b8133ec8e53bb61fd9558b9b4dff155b81d5e4cc68b4d128a2e33b"
    },
    {
     "length": 243032,
-    "sha256": "1f8a06ba813dbafa126ac7cd230f6011157e549687e559e710882e38d3f26d12"
+    "sha256": "57a021c4e21198c30250c5c93a1f08d0bcf5a2a1203f8cd44b2b9613fcf23e28"
    }
   ],
   "container_version": [
@@ -1409,16 +1415,430 @@ footer p { margin: 6px 0; }
   ],
   [
    [
+    "data",
+    "a89ba060f43e"
+   ],
+   [
     "copy",
     2,
-    0,
-    212256
+    6,
+    212250
+   ],
+   [
+    "data",
+    "4d50313162"
+   ],
+   [
+    "copy",
+    3,
+    45047,
+    5
+   ],
+   [
+    "data",
+    "03d1614a1278042a01d060"
+   ],
+   [
+    "copy",
+    3,
+    218681,
+    4
+   ],
+   [
+    "copy",
+    3,
+    32677,
+    6
+   ],
+   [
+    "data",
+    "f015f8012c0fd85d48610041188a88aa4209d08d"
+   ],
+   [
+    "copy",
+    3,
+    43491,
+    4
+   ],
+   [
+    "data",
+    "225202954200d30121601c"
+   ],
+   [
+    "copy",
+    3,
+    30738,
+    4
+   ],
+   [
+    "copy",
+    3,
+    1212,
+    6
+   ],
+   [
+    "data",
+    "53"
+   ],
+   [
+    "copy",
+    3,
+    14171,
+    4
+   ],
+   [
+    "copy",
+    3,
+    39833,
+    4
+   ],
+   [
+    "data",
+    "2101705149021d0e300b8813801e3102328242f9d37047494b1b78042b05d1"
+   ],
+   [
+    "copy",
+    3,
+    28128,
+    4
+   ],
+   [
+    "data",
+    "0139012902d970474c"
+   ],
+   [
+    "copy",
+    3,
+    51237,
+    4
+   ],
+   [
+    "data",
+    "b50c"
+   ],
+   [
+    "copy",
+    3,
+    44083,
+    5
+   ],
+   [
+    "data",
+    "454909180a78"
+   ],
+   [
+    "copy",
+    3,
+    37924,
+    4
+   ],
+   [
+    "data",
+    "0022a24206d00c70012c01d199f4a1f970f42f"
+   ],
+   [
+    "copy",
+    3,
+    32661,
+    7
+   ],
+   [
+    "data",
+    "3d"
+   ],
+   [
+    "copy",
+    3,
+    25489,
+    5
+   ],
+   [
+    "data",
+    "01d1"
+   ],
+   [
+    "copy",
+    3,
+    10998,
+    4
+   ],
+   [
+    "copy",
+    3,
+    41626,
+    4
+   ],
+   [
+    "data",
+    "344d2878042805d0"
+   ],
+   [
+    "copy",
+    3,
+    32528,
+    5
+   ],
+   [
+    "data",
+    "706ff461fe2be0fff7baff687f"
+   ],
+   [
+    "copy",
+    3,
+    2034,
+    4
+   ],
+   [
+    "data",
+    "6ef4bf"
+   ],
+   [
+    "copy",
+    3,
+    37157,
+    5
+   ],
+   [
+    "data",
+    "74f4f9f80024"
+   ],
+   [
+    "copy",
+    3,
+    3498,
+    4
+   ],
+   [
+    "data",
+    "dfff0500820031a082"
+   ],
+   [
+    "copy",
+    3,
+    12287,
+    4
+   ],
+   [
+    "data",
+    "23"
+   ],
+   [
+    "copy",
+    3,
+    30784,
+    4
+   ],
+   [
+    "data",
+    "2848405d30a2931d0921"
+   ],
+   [
+    "copy",
+    3,
+    30760,
+    4
+   ],
+   [
+    "data",
+    "0134032cead3"
+   ],
+   [
+    "copy",
+    3,
+    15076,
+    12
+   ],
+   [
+    "data",
+    "79f499fa01b079f492"
+   ],
+   [
+    "copy",
+    3,
+    28153,
+    7
+   ],
+   [
+    "copy",
+    3,
+    205916,
+    4
+   ],
+   [
+    "data",
+    "01b401b4"
+   ],
+   [
+    "copy",
+    3,
+    13262,
+    4
+   ],
+   [
+    "data",
+    "79f4"
+   ],
+   [
+    "copy",
+    3,
+    7776,
+    4
+   ],
+   [
+    "copy",
+    3,
+    446,
+    4
+   ],
+   [
+    "data",
+    "60b582b00e"
+   ],
+   [
+    "copy",
+    2,
+    165523,
+    4
+   ],
+   [
+    "data",
+    "22"
+   ],
+   [
+    "copy",
+    3,
+    16006,
+    4
+   ],
+   [
+    "data",
+    "1d00"
+   ],
+   [
+    "copy",
+    3,
+    21416,
+    4
+   ],
+   [
+    "data",
+    "13000092"
+   ],
+   [
+    "copy",
+    3,
+    20324,
+    4
+   ],
+   [
+    "data",
+    "1248005d0d3870f4"
+   ],
+   [
+    "copy",
+    3,
+    16548,
+    4
+   ],
+   [
+    "data",
+    "711d2a000223"
+   ],
+   [
+    "copy",
+    3,
+    211312,
+    4
+   ],
+   [
+    "data",
+    "60"
+   ],
+   [
+    "copy",
+    3,
+    445,
+    5
+   ],
+   [
+    "data",
+    "0448017804"
+   ],
+   [
+    "copy",
+    3,
+    203551,
+    5
+   ],
+   [
+    "data",
+    "01700a4b1847"
+   ],
+   [
+    "copy",
+    3,
+    38392,
+    8
+   ],
+   [
+    "copy",
+    3,
+    47720,
+    5
+   ],
+   [
+    "data",
+    "ef004018760040920c"
+   ],
+   [
+    "copy",
+    3,
+    49950,
+    10
+   ],
+   [
+    "copy",
+    3,
+    3632,
+    4
+   ],
+   [
+    "data",
+    "198c0280"
+   ],
+   [
+    "copy",
+    3,
+    213840,
+    4
+   ],
+   [
+    "copy",
+    3,
+    66101,
+    4
+   ],
+   [
+    "copy",
+    3,
+    66110,
+    4
+   ],
+   [
+    "copy",
+    3,
+    66149,
+    4
+   ],
+   [
+    "data",
+    "53494d554c004558434c0000"
    ]
   ],
   [
    [
     "data",
-    "dfd2f5ad58"
+    "9419ccd658"
    ],
    [
     "copy",
@@ -1496,13 +1916,23 @@ footer p { margin: 6px 0; }
    ],
    [
     "data",
-    "31"
+    "32"
    ],
    [
     "copy",
     3,
     15169,
-    915
+    855
+   ],
+   [
+    "data",
+    "8ff3a1ff"
+   ],
+   [
+    "copy",
+    3,
+    16028,
+    56
    ],
    [
     "data",
@@ -1656,7 +2086,7 @@ footer p { margin: 6px 0; }
    ],
    [
     "data",
-    "2000012126f01ffa05e0"
+    "2000012126f06dfc05e0"
    ],
    [
     "copy",
@@ -1692,7 +2122,29 @@ footer p { margin: 6px 0; }
     "copy",
     3,
     34936,
-    2514
+    202
+   ],
+   [
+    "data",
+    "8bf3ad"
+   ],
+   [
+    "copy",
+    3,
+    35141,
+    695
+   ],
+   [
+    "copy",
+    3,
+    43452,
+    4
+   ],
+   [
+    "copy",
+    3,
+    35840,
+    1610
    ],
    [
     "data",
@@ -1742,7 +2194,17 @@ footer p { margin: 6px 0; }
     "copy",
     3,
     38578,
-    8858
+    8654
+   ],
+   [
+    "data",
+    "88f384fa"
+   ],
+   [
+    "copy",
+    3,
+    47236,
+    200
    ],
    [
     "data",
@@ -1752,7 +2214,33 @@ footer p { margin: 6px 0; }
     "copy",
     3,
     47440,
-    1908
+    280
+   ],
+   [
+    "data",
+    "253d3b"
+   ],
+   [
+    "copy",
+    3,
+    213875,
+    6
+   ],
+   [
+    "copy",
+    3,
+    47729,
+    1483
+   ],
+   [
+    "data",
+    "21f06cfa"
+   ],
+   [
+    "copy",
+    3,
+    49216,
+    132
    ],
    [
     "data",
@@ -1762,7 +2250,17 @@ footer p { margin: 6px 0; }
     "copy",
     3,
     49368,
-    60
+    12
+   ],
+   [
+    "data",
+    "21f0c2"
+   ],
+   [
+    "copy",
+    3,
+    49383,
+    45
    ],
    [
     "data",
@@ -1822,7 +2320,7 @@ footer p { margin: 6px 0; }
    ],
    [
     "data",
-    "fd2000012120f051fd05e0"
+    "fd2000012120f09fff05e0"
    ],
    [
     "copy",
@@ -1904,7 +2402,7 @@ footer p { margin: 6px 0; }
    ],
    [
     "data",
-    "4d31"
+    "4d32"
    ],
    [
     "copy",
@@ -2218,29 +2716,121 @@ footer p { margin: 6px 0; }
    ],
    [
     "data",
-    "5705805c"
+    "5705805c17"
    ],
    [
     "copy",
     3,
-    71825,
-    11
+    43374,
+    6
    ],
    [
     "data",
-    "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    "0f00124a125c0020012a1b"
+   ],
+   [
+    "copy",
+    3,
+    49425,
+    5
+   ],
+   [
+    "data",
+    "bbfa0e0001254d40"
+   ],
+   [
+    "copy",
+    3,
+    28346,
+    4
+   ],
+   [
+    "data",
+    "57f8"
+   ],
+   [
+    "copy",
+    3,
+    205162,
+    4
    ],
    [
     "copy",
     2,
-    6077,
-    6
+    11899,
+    4
+   ],
+   [
+    "data",
+    "90"
    ],
    [
     "copy",
     3,
-    191055,
-    9
+    41679,
+    5
+   ],
+   [
+    "data",
+    "aff8"
+   ],
+   [
+    "copy",
+    3,
+    27826,
+    6
+   ],
+   [
+    "data",
+    "89f8002f03d0"
+   ],
+   [
+    "copy",
+    3,
+    40698,
+    6
+   ],
+   [
+    "data",
+    "03fa"
+   ],
+   [
+    "copy",
+    3,
+    53012,
+    4
+   ],
+   [
+    "data",
+    "08bc18470000920c004001b500f099fa"
+   ],
+   [
+    "copy",
+    3,
+    209830,
+    4
+   ],
+   [
+    "copy",
+    3,
+    44638,
+    4
+   ],
+   [
+    "data",
+    "09bc9e46cbd1"
+   ],
+   [
+    "copy",
+    3,
+    1048,
+    5
+   ],
+   [
+    "copy",
+    3,
+    191053,
+    11
    ],
    [
     "copy",
@@ -2953,7 +3543,7 @@ footer p { margin: 6px 0; }
    [
     "copy",
     2,
-    42980,
+    949,
     4
    ],
    [
@@ -2984,7 +3574,133 @@ footer p { margin: 6px 0; }
    ],
    [
     "data",
-    "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    "00"
+   ],
+   [
+    "copy",
+    2,
+    2773,
+    4
+   ],
+   [
+    "data",
+    "00401802"
+   ],
+   [
+    "copy",
+    3,
+    20891,
+    4
+   ],
+   [
+    "data",
+    "21024a10"
+   ],
+   [
+    "copy",
+    3,
+    34409,
+    4
+   ],
+   [
+    "data",
+    "e70480559e028020b500250d4a125c"
+   ],
+   [
+    "copy",
+    3,
+    37946,
+    4
+   ],
+   [
+    "data",
+    "01217140"
+   ],
+   [
+    "copy",
+    3,
+    201748,
+    4
+   ],
+   [
+    "data",
+    "050020003100dff7a7f8"
+   ],
+   [
+    "copy",
+    3,
+    214036,
+    4
+   ],
+   [
+    "data",
+    "200001217140fff720fe"
+   ],
+   [
+    "copy",
+    3,
+    196280,
+    8
+   ],
+   [
+    "data",
+    "d9ff20bc08bc184792"
+   ],
+   [
+    "copy",
+    2,
+    22945,
+    7
+   ],
+   [
+    "data",
+    "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+   ],
+   [
+    "copy",
+    2,
+    585,
+    4
+   ],
+   [
+    "copy",
+    3,
+    216075,
+    5
+   ],
+   [
+    "data",
+    "024b995c012211407047e105004001b50021fff72cfd"
+   ],
+   [
+    "copy",
+    3,
+    988,
+    4
+   ],
+   [
+    "data",
+    "def7b6ff09bc9e460121a5e5"
+   ],
+   [
+    "copy",
+    3,
+    11536,
+    4
+   ],
+   [
+    "data",
+    "fff720fd20003100dff704f808bc18"
+   ],
+   [
+    "copy",
+    2,
+    1094,
+    10
+   ],
+   [
+    "data",
+    "000000000000000000000000000000000000000000000000"
    ],
    [
     "copy",
@@ -3015,26 +3731,64 @@ footer p { margin: 6px 0; }
     18274
    ],
    [
+    "data",
+    "0948005d"
+   ],
+   [
     "copy",
     3,
-    51564,
+    48492,
+    4
+   ],
+   [
+    "copy",
+    3,
+    12014,
+    6
+   ],
+   [
+    "data",
+    "064bd218d07803280ad153"
+   ],
+   [
+    "copy",
+    3,
+    3261,
     4
    ],
    [
     "data",
-    "98fb15e04efb05"
+    "409840d07004e0000092"
    ],
    [
     "copy",
-    1,
-    17674,
+    3,
+    49933,
     4
    ],
    [
     "copy",
     3,
-    213033,
-    879
+    12397,
+    4
+   ],
+   [
+    "copy",
+    3,
+    10273,
+    4
+   ],
+   [
+    "copy",
+    3,
+    28395,
+    9
+   ],
+   [
+    "copy",
+    3,
+    213078,
+    834
    ],
    [
     "data",

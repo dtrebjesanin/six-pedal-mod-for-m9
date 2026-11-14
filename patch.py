@@ -18,19 +18,21 @@ import zlib
 from pathlib import Path
 
 NOTICE = "\n".join([
-    "Six-pedal mod for the Line 6 M9 (unofficial), release 1.0.",
+    "Six-pedal mod for the Line 6 M9 (unofficial), release 1.1.",
     "This is an unofficial community project. It is not supported, endorsed or maintained by Line 6.",
     "Use it at your own risk. A flash erases all saved scenes and the global settings of the pedal.",
     "To go back, flash the official 2.04 file from the Line 6 site.",
 ])
-PATCH_FILE = "six-pedal-mod-1.0.patch.json"
+PATCH_FILE = "six-pedal-mod-1.1.patch.json"
 
 OFFICIAL_NAME = "M7_BFlash_2_04_00.m9f"
 
 # The only images this release may read and write (SysEx stream sha256). A patch
 # file with other hashes is refused, so --patch cannot write an untested image.
 INPUT_STREAM_SHA256 = "88236679c4da9fb6d79c78e36bfadf8b3c7003216fb740dcae98a89d8be690f9"
-OUTPUT_STREAM_SHA256 = "52611003291b047d53d333c67e9f566cf355ed072b118b4d1b18bfef02a81ac9"
+OUTPUT_STREAM_SHA256 = "1c87d5e52416401397ac66ea2e308d03c660345a1615756c4cd9756e657e0265"
+# The stream of the six-pedal mod 1.0 file. Only used to refuse it with a clear message.
+MOD10_STREAM_SHA256 = "52611003291b047d53d333c67e9f566cf355ed072b118b4d1b18bfef02a81ac9"
 
 
 class PatchError(Exception):
@@ -339,7 +341,7 @@ def load_patch(path) -> dict:
             and _is_sha(inp.get("stream_sha256")) and _is_sha(out.get("stream_sha256"))):
         raise _bad_patch(path, "input or output is missing")
     if inp["stream_sha256"] != INPUT_STREAM_SHA256 or out["stream_sha256"] != OUTPUT_STREAM_SHA256:
-        raise _bad_patch(path, "it is not the patch file of release 1.0")
+        raise _bad_patch(path, "it is not the patch file of release 1.1")
     _check_sections(path, "input", inp.get("sections"))
     _check_sections(path, "output", out.get("sections"))
     cv = out.get("container_version")
@@ -384,6 +386,9 @@ def patch_file(in_path, out_path=None, patch_path=None) -> Path:
         raise PatchError("The input file %s cannot be read (%s)." % (in_path, e.strerror or e))
     stream = read_stream(raw)
     if _sha256(stream) != patch["input"]["stream_sha256"]:
+        if _sha256(stream) == MOD10_STREAM_SHA256:
+            raise PatchError("This file is the six-pedal mod 1.0. Use the official 2.04 file "
+                             "%s from the Line 6 site, unchanged." % OFFICIAL_NAME)
         if _sha256(stream) == patch["output"]["stream_sha256"]:
             raise PatchError("This file is already the six-pedal mod. Patch the official file "
                              "%s from the Line 6 site, unchanged." % OFFICIAL_NAME)

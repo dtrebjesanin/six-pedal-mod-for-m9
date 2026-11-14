@@ -6,26 +6,39 @@
 > [!WARNING]
 > **Use it at your own risk.** Every flash erases all saved scenes and the global settings of the pedal. If a scene matters to you, write down its settings before you flash. To go back, flash the official 2.04 file from the Line 6 site ([back to the official 2.04](#back-to-the-official-204)).
 
-I made this mod for my own M9. The stock firmware runs three effects at a time (one pedal per column, A or B), and with the mod all six pedals are independent effects at the same time. This repository holds no Line 6 firmware: the browser page `index.html` takes the official 2.04 file that you download yourself, makes the mod in your browser and sends it to the pedal over MIDI. The Python scripts `patch.py` and `flash.py` do the same job from the command line, in case the page doesn't work for you.
+I made this mod for my own M9. The stock firmware runs three effects at a time (one pedal per column, A or B), and with the mod all six pedals can be independent effects at the same time. Since mod 1.1 you choose that per FX unit (see [FX modes page](#fx-modes-page)). This repository holds no Line 6 firmware: the browser page `index.html` takes the official 2.04 file that you download yourself, makes the mod in your browser and sends it to the pedal over MIDI. The Python scripts `patch.py` and `flash.py` do the same job from the command line, in case the page doesn't work for you.
 
 ## What the mod does
 
-All six pedals run at the same time, in the signal order 1A 1B 2A 2B 3A 3B. Each pedal has its own switch and LED, and tap tempo works for both pedals of a column.
+When an FX unit is set to Simultaneous, both of its pedals run at the same time, so all six pedals can run together, in the signal order 1A 1B 2A 2B 3A 3B. Each pedal has its own switch and LED, and tap tempo works for both pedals of a column. After a flash every FX unit is on Simultaneous, so the pedal works as it did with the earlier mod 1.0, and you can set a unit to Exclusive if you want it to work like the stock M9 (see [FX modes page](#fx-modes-page)).
 
 With six effects running, the DSP can run out of time, so the mod also adds an overload warning to the display:
 
 - Above 90 % DSP load, a small box with the percent shows up next to the model name.
 - When an audio block is lost, the display shows `DSP OVERLOAD` full screen for 2 seconds, and then an `OVL` box for as long as the overload lasts.
 
-Every time you switch the pedal on, it shows `UNOFFICIAL FIRMWARE` / `SIX-PEDAL MOD 1.0` for 3 seconds, so it's always clear which firmware is on it. The MIDI page of the global settings also shows `v2.M1` instead of `v2.04`.
+Every time you switch the pedal on, it shows `UNOFFICIAL FIRMWARE` / `SIX-PEDAL MOD 1.1` for 3 seconds, so it's always clear which firmware is on it. The MIDI page of the global settings also shows `v2.M2` instead of `v2.04`.
 
 ### Limits
 
-- An effect that is off still uses its full DSP time. Switching a pedal off won't end an overload, only a lighter model or another scene will.
+- Exclusive does not lower the DSP load: a pedal that is off still uses its full DSP time. Switching a pedal off won't end an overload, only a lighter model or another scene will.
 - Six heavy models together can overload the DSP.
 - In my own use, most common pedal combinations don't get near an overload, or even near 90 % (where the percent box shows up).
 - In my tests an overload did no harm to the pedal. While testing I ran the DSP over the limit several times (up to about 103 %): it then skips audio blocks, so the sound breaks up (I turned the volume down for the load test), but the pedal stays in control and keeps its settings.
 - I tested it on one pedal (mine) and only with Windows 11: the browser page in Chrome, and the Python scripts from the command line. macOS and Linux are not tested. The commands below use `uv run --python 3.12`, so uv gets a Python for which python-rtmidi has ready-made packages, and that might be enough on macOS and Linux too, but I haven't tried it.
+
+## FX modes page
+
+Mod 1.1 adds one page to the Setup menu of the pedal, after the MIDI page. It is the fifth page: press Model Select on the MIDI page to get to it. Its top row shows the three FX units, FX 1, FX 2 and FX 3 (the two pedals of a column), and each one is set to one of two modes:
+
+- `EXCL` (Exclusive): one pedal of the unit at a time, as on the stock M9. When you switch a pedal on, the other pedal of the same unit switches off. This holds for the footswitches, for MIDI messages that select a pedal, for choosing a model for a pedal that is off (that turns it on), and for a scene change.
+- `SIMUL` (Simultaneous): both pedals of the unit can be on, as in mod 1.0.
+
+Turn Model Select, Knob 1 or Knob 2 to change the mode of the unit above it: up for `EXCL`, down for `SIMUL`. As on the other Setup pages, there's a bar above each value (full for `EXCL`, empty for `SIMUL`). The change works at once. If you set a unit to `EXCL` while both of its pedals are on, the pedal that is not selected switches off.
+
+Every unit is on `SIMUL` in every scene after a flash, so the pedal works as it did with mod 1.0 until you go in and change it. The three modes are saved per scene, with the same rules as every other scene setting: they follow your AUTOSAVE or MNL SAVE choice, and a scene you never changed stays on `SIMUL`. If you want one pedal per column, as on the stock M9, set the units to `EXCL` in each scene where you want that.
+
+Exclusive only changes the switches. The DSP load stays as it was (see [Limits](#limits)).
 
 ## In the browser
 
@@ -35,12 +48,12 @@ Open it at [dtrebjesanin.github.io/six-pedal-mod-for-m9](https://dtrebjesanin.gi
 
 The page takes you through six steps:
 
-1. Choose "Install the six-pedal mod 1.0" (or "Back to the official 2.04").
+1. Choose "Install the six-pedal mod 1.1" (or "Back to the official 2.04").
 2. Drop the official 2.04 file on the page. It checks that the file really is the official 2.04, the same check that `patch.py` does.
 3. Click "Allow MIDI" and choose the MIDI out and in of your interface. The browser asks you to allow MIDI access, and the page needs it to send the update. Close other programs that use the interface first (I had to close REAPER).
 4. Put the pedal into FLASH UPDATE MODE ([step 2](#2-put-the-pedal-into-flash-update-mode) below) and click "Check the pedal". The page only goes on when the pedal answers from that mode.
 5. Leave the pauses on "Normal", tick the own-risk box and click "Flash". After a 10 second countdown the flash takes about 6 minutes. Keep the tab open, the PC awake and the pedal plugged in until it has restarted.
-6. After the restart, click "Read version": `02M1` is the six-pedal mod 1.0 and `0204` is the official firmware.
+6. After the restart, click "Read version": `02M2` is the six-pedal mod 1.1, `02M1` is the older six-pedal mod 1.0 and `0204` is the official firmware.
 
 If the page doesn't work in your browser, the Python scripts below do the same thing.
 
@@ -51,7 +64,7 @@ If the page doesn't work in your browser, the Python scripts below do the same t
 - Chrome or Edge on a desktop PC for the browser page, or Python and uv for the scripts (the next two points).
 - Python 3.8 or later for `patch.py`, which uses only the standard library. I tested it with 3.8, 3.12 and 3.14. You can run it with your own Python directly, or through uv as in step 1.
 - [uv](https://docs.astral.sh/uv/) for `flash.py`, which needs the python-rtmidi package. The `uv run` commands below fetch it for you.
-- The files of this repository, with `six-pedal-mod-1.0.patch.json` next to `patch.py`.
+- The files of this repository, with `six-pedal-mod-1.1.patch.json` next to `patch.py`.
 
 ## Steps with Python
 
@@ -63,7 +76,7 @@ Download the official 2.04 file from the Line 6 site, keep it unchanged, and run
 uv run --python 3.12 python patch.py M7_BFlash_2_04_00.m9f
 ```
 
-`patch.py` checks that the file really is the official 2.04 and refuses anything else (the 2.02 file, for example, or a file that is already modded). It writes `six-pedal-mod-1.0.m9f` next to the input file and then says that the content matches the tested image, with the sha256 of that content. The sha256 of the file itself can differ from PC to PC, because it depends on the zlib of your Python, but the content that goes to the pedal is the same. With `-o` you can choose another output path.
+`patch.py` checks that the file really is the official 2.04 and refuses anything else (the 2.02 file, for example, or a file that is already modded, also the mod 1.0 file). It writes `six-pedal-mod-1.1.m9f` next to the input file and then says that the content matches the tested image, with the sha256 of that content. The sha256 of the file itself can differ from PC to PC, because it depends on the zlib of your Python, but the content that goes to the pedal is the same. With `-o` you can choose another output path.
 
 In the flash commands below I write the bare file names. Use the path that `patch.py` printed after "Written:" instead, in quotes if it has spaces.
 
@@ -88,13 +101,13 @@ uv run --python 3.12 --with python-rtmidi python flash.py --list
 For `--port`, give a part of the port name that is in both lists, without the number at the end (for example `--port focusrite`), in quotes if it has a space. On Windows the number at the end can differ between the in and the out list for the same interface. Without `--yes`, `flash.py` sends nothing, which makes a dry run a check of the file and the port name:
 
 ```
-uv run --python 3.12 --with python-rtmidi python flash.py six-pedal-mod-1.0.m9f --port <name>
+uv run --python 3.12 --with python-rtmidi python flash.py six-pedal-mod-1.1.m9f --port <name>
 ```
 
 Then flash it for real:
 
 ```
-uv run --python 3.12 --with python-rtmidi python flash.py six-pedal-mod-1.0.m9f --port <name> --yes
+uv run --python 3.12 --with python-rtmidi python flash.py six-pedal-mod-1.1.m9f --port <name> --yes
 ```
 
 `flash.py` prints the notice and the warning again and counts down 10 seconds before it sends the first message. A flash takes about 6 minutes, with a 5 second pause after each erase, section start and section end. That was enough for all my flashes since 13 October 2026, but another pedal might need more time (see [if a flash fails](#if-a-flash-fails)).
@@ -107,13 +120,13 @@ In FLASH UPDATE MODE a black overlay covers the display, and after the restart a
 
 ### 4. Check the result
 
-After the restart the pedal shows `UNOFFICIAL FIRMWARE` / `SIX-PEDAL MOD 1.0` for 3 seconds. You can also ask it for its version:
+After the restart the pedal shows `UNOFFICIAL FIRMWARE` / `SIX-PEDAL MOD 1.1` for 3 seconds. You can also ask it for its version:
 
 ```
 uv run --python 3.12 --with python-rtmidi python flash.py --port <name> --identity
 ```
 
-`02M1` is the six-pedal mod 1.0 and `0204` is the official firmware.
+`02M2` is the six-pedal mod 1.1, `02M1` is the older six-pedal mod 1.0 and `0204` is the official firmware.
 
 ## Back to the official 2.04
 
@@ -134,7 +147,7 @@ After it, the start-up message is gone and the version is `0204` ("Read version"
 Switch the pedal off, enter FLASH UPDATE MODE again and flash again. If it fails again, give the pedal more time with longer pauses (a flash then takes 22 to 23 minutes). On the page that's the "Slow" choice in step 5, and with `flash.py` it's:
 
 ```
-uv run --python 3.12 --with python-rtmidi python flash.py six-pedal-mod-1.0.m9f --port <name> --yes --erase-s 120 --start-s 120 --commit-s 30
+uv run --python 3.12 --with python-rtmidi python flash.py six-pedal-mod-1.1.m9f --port <name> --yes --erase-s 120 --start-s 120 --commit-s 30
 ```
 
 On my pedal one early flash ended with "Download Fail 0x02: Format Error", and the next one worked. That's all I can say from one pedal, and I can't promise that a repeated flash fixes every failure.
