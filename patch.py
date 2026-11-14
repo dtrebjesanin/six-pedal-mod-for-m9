@@ -30,7 +30,7 @@ OFFICIAL_NAME = "M7_BFlash_2_04_00.m9f"
 # The only images this release may read and write (SysEx stream sha256). A patch
 # file with other hashes is refused, so --patch cannot write an untested image.
 INPUT_STREAM_SHA256 = "88236679c4da9fb6d79c78e36bfadf8b3c7003216fb740dcae98a89d8be690f9"
-OUTPUT_STREAM_SHA256 = "1c87d5e52416401397ac66ea2e308d03c660345a1615756c4cd9756e657e0265"
+OUTPUT_STREAM_SHA256 = "732d0c8007bf374821785d72f1f6c8b08019e1b236a411c4f04fb020984a678c"
 # The stream of the six-pedal mod 1.0 file. Only used to refuse it with a clear message.
 MOD10_STREAM_SHA256 = "52611003291b047d53d333c67e9f566cf355ed072b118b4d1b18bfef02a81ac9"
 
