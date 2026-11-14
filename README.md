@@ -23,6 +23,7 @@ Every time you switch the pedal on, it shows `UNOFFICIAL FIRMWARE` / `SIX-PEDAL 
 
 - Exclusive does not lower the DSP load: a pedal that is off still uses its full DSP time. Switching a pedal off won't end an overload, only a lighter model or another scene will.
 - Six heavy models together can overload the DSP.
+- The looper is a little shorter than stock: 29.91 seconds instead of 30.08. Every effect slot gets a fixed slice of the pedal's delay memory, whatever model is in it, and the six slots of the mod didn't quite fit into the free memory, so the looper gave up a little.
 - In my own use, most common pedal combinations don't get near an overload, or even near 90 % (where the percent box shows up).
 - In my tests an overload did no harm to the pedal. While testing I ran the DSP over the limit several times (up to about 103 %): it then skips audio blocks, so the sound breaks up (I turned the volume down for the load test), but the pedal stays in control and keeps its settings.
 - I tested it on one pedal (mine) and only with Windows 11: the browser page in Chrome, and the Python scripts from the command line. macOS and Linux are not tested. The commands below use `uv run --python 3.12`, so uv gets a Python for which python-rtmidi has ready-made packages, and that might be enough on macOS and Linux too, but I haven't tried it.
